@@ -23,30 +23,30 @@ BOOL cSocketManager::Init()
 BOOL cSocketManager::ResolveAddress(string IpAddress, string Port)
 {
     WSADATA wsaData;
-	struct addrinfo hints;
+    struct addrinfo hints;
     int ret;
 
     // Initialize Winsock
-	ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (ret != 0)
-	{
-		printf("WSAStartup failed with error: %d\n", ret);
-		return FALSE;
-	}
+    ret = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (ret != 0)
+    {
+        printf("WSAStartup failed with error: %d\n", ret);
+        return FALSE;
+    }
 
     ZeroMemory(&hints, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
 
-	// Resolve the server address and port
-	ret = getaddrinfo(IpAddress.c_str(), Port.c_str(), &hints, &m_pAddrInfo);
-	if (ret != 0)
-	{
-		printf("getaddrinfo failed with error: %d\n", ret);
-		WSACleanup();
-		return FALSE;
-	}
+    // Resolve the server address and port
+    ret = getaddrinfo(IpAddress.c_str(), Port.c_str(), &hints, &m_pAddrInfo);
+    if (ret != 0)
+    {
+        printf("getaddrinfo failed with error: %d\n", ret);
+        WSACleanup();
+        return FALSE;
+    }
     return TRUE;
 }
 
@@ -65,36 +65,36 @@ BOOL cSocketManager::Connect(string IpAddress, string Port)
 
     m_bConnected = FALSE;
     // Attempt to connect to an address until one succeeds
-	for (struct addrinfo *pAddrInfo = m_pAddrInfo; pAddrInfo != NULL; pAddrInfo = pAddrInfo->ai_next)
-	{
-		// Create a SOCKET for connecting to server
-		m_ConnectSocket = socket(pAddrInfo->ai_family, pAddrInfo->ai_socktype, pAddrInfo->ai_protocol);
-		if (m_ConnectSocket == INVALID_SOCKET)
-		{
-			printf("socket failed with error: %ld\n", WSAGetLastError());
-			WSACleanup();
-			return FALSE;
-		}
+    for (struct addrinfo *pAddrInfo = m_pAddrInfo; pAddrInfo != NULL; pAddrInfo = pAddrInfo->ai_next)
+    {
+        // Create a SOCKET for connecting to server
+        m_ConnectSocket = socket(pAddrInfo->ai_family, pAddrInfo->ai_socktype, pAddrInfo->ai_protocol);
+        if (m_ConnectSocket == INVALID_SOCKET)
+        {
+            printf("socket failed with error: %ld\n", WSAGetLastError());
+            WSACleanup();
+            return FALSE;
+        }
 
-		// Connect to server.
-		int ret = connect(m_ConnectSocket, pAddrInfo->ai_addr, (int)pAddrInfo->ai_addrlen);
-		if (ret == SOCKET_ERROR)
-		{
-			closesocket(m_ConnectSocket);
-			m_ConnectSocket = INVALID_SOCKET;
-			continue;
-		}
-		break;
-	}
+        // Connect to server.
+        int ret = connect(m_ConnectSocket, pAddrInfo->ai_addr, (int)pAddrInfo->ai_addrlen);
+        if (ret == SOCKET_ERROR)
+        {
+            closesocket(m_ConnectSocket);
+            m_ConnectSocket = INVALID_SOCKET;
+            continue;
+        }
+        break;
+    }
 
-	freeaddrinfo(m_pAddrInfo);
+    freeaddrinfo(m_pAddrInfo);
 
     if (m_ConnectSocket == INVALID_SOCKET)
-	{
-		printf("Unable to connect to server!\n");
-		WSACleanup();
+    {
+        printf("Unable to connect to server!\n");
+        WSACleanup();
         return FALSE;
-	}
+    }
 
     m_bConnected = TRUE;
     return m_bConnected;
@@ -108,16 +108,16 @@ BOOL cSocketManager::Send(string msg)
     memcpy(m_aSendBuf, msg.c_str(), length);
 
     // Send an buffer
-	int ret = send(m_ConnectSocket, m_aSendBuf, length, 0);
-	if (ret == SOCKET_ERROR)
-	{
-		printf("send failed with error: %d\n", WSAGetLastError());
-		closesocket(m_ConnectSocket);
-		WSACleanup();
-		return FALSE;
-	}
+    int ret = send(m_ConnectSocket, m_aSendBuf, length, 0);
+    if (ret == SOCKET_ERROR)
+    {
+        printf("send failed with error: %d\n", WSAGetLastError());
+        closesocket(m_ConnectSocket);
+        WSACleanup();
+        return FALSE;
+    }
 
-	printf("Bytes Sent: %ld\n", ret);
+    printf("Bytes Sent: %ld\n", ret);
 
     return TRUE;
 }
@@ -148,23 +148,23 @@ BOOL cSocketManager::Recv()
 
 BOOL cSocketManager::GetRecv(string &msg)
 {
-	if (!m_bReceived) return FALSE;
+    if (!m_bReceived) return FALSE;
 
     msg = string(m_aRecvBuf);
     ZeroMemory(m_aRecvBuf, m_DEFAULT_BUFLEN);
     m_bReceived = FALSE;
-	return TRUE;
+    return TRUE;
 }
 
 BOOL cSocketManager::SendAndRecv(string msg)
 {
     if (!Send(msg)) return FALSE;
 
-	if (!Recv()) return FALSE;
+    if (!Recv()) return FALSE;
 
-	string msgRecv;
-	if (!GetRecv(msgRecv)) return FALSE;
-	printf("SendAndRecv: %s\n", msgRecv.c_str());
+    string msgRecv;
+    if (!GetRecv(msgRecv)) return FALSE;
+    printf("SendAndRecv: %s\n", msgRecv.c_str());
 
     return TRUE;
 }
@@ -172,16 +172,16 @@ BOOL cSocketManager::SendAndRecv(string msg)
 void  cSocketManager::Close()
 {
     int ret = shutdown(m_ConnectSocket, SD_SEND);
-	if (ret == SOCKET_ERROR)
+    if (ret == SOCKET_ERROR)
     {
-		printf("shutdown failed with error: %d\n", WSAGetLastError());
-		closesocket(m_ConnectSocket);
-		WSACleanup();
-	}
+        printf("shutdown failed with error: %d\n", WSAGetLastError());
+        closesocket(m_ConnectSocket);
+        WSACleanup();
+    }
 }
 
 void cSocketManager::Free()
 {
-	closesocket(m_ConnectSocket);
-	WSACleanup();
+    closesocket(m_ConnectSocket);
+    WSACleanup();
 }

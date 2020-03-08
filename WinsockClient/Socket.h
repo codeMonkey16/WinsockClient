@@ -14,8 +14,8 @@ public:
     BOOL Connect(string IpAddress, string Port);
     BOOL Send(string msg);
     BOOL Recv();
-	BOOL GetRecv(string &msg);
-	BOOL SendAndRecv(string msg);
+    BOOL GetRecv(string &msg);
+    BOOL SendAndRecv(string msg);
     void Close();
     void Free();
 private:
