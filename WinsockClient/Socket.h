@@ -1,11 +1,16 @@
 #pragma once
 
 #include <windows.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string>
 
 using namespace std;
+
+#define SOCKET_DEBUG_PRINT_EN 1
+
+#if SOCKET_DEBUG_PRINT_EN == 1
+#define SOCKET_LOG(...) printf(##__VA_ARGS__)
+#else
+#define SOCKET_LOG(...)
+#endif
 
 class cSocketManager
 {
@@ -15,7 +20,7 @@ public:
     BOOL Send(string msg);
     BOOL Recv();
     BOOL GetRecv(string &msg);
-    BOOL SendAndRecv(string msg);
+    BOOL SendAndRecv(string msg, string &msgRecv);
     void Close();
     void Free();
 private:
