@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 #include <assert.h>
+#include <iostream>
 
 #include "Socket.h"
 
@@ -13,7 +14,23 @@ int __cdecl main(int argc, char **argv)
 {
     cSocketManager socketManager;
     if (!socketManager.Connect(DEAFULT_IP_ADDR, DEFAULT_PORT)) return 1;
-
+#if 1
+	while (true)
+	{
+		string send;
+		cout << "Wait for input..." << endl;
+		cin >> send;
+		if (!((string)"exit").compare(send))
+		{
+			cout << "Exit." << endl;
+			break;
+		}
+		string recv;
+		if (!socketManager.SendAndRecv(send, recv))
+			return 1;
+		assert(!send.compare(recv));
+	}
+#else
 	list<string> inputs { "test 1", "test 2", "test 3",
 		"this is a long test string to test if the received string is truncated..."};
 
@@ -23,6 +40,7 @@ int __cdecl main(int argc, char **argv)
 			return 1;
 		assert(expected.compare(recv) == 0);
 	}
+#endif
 
     socketManager.Close();
     socketManager.Free();
